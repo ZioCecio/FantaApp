@@ -2,9 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'Widgets/PlayerLists.dart';
+import 'Widgets/PlayerAuction.dart';
+import 'SocketAction.dart';
 
 import 'package:flutter_socket_io/flutter_socket_io.dart';
-import 'package:flutter_socket_io/socket_io_manager.dart';
 
 void main() => runApp(App());
 
@@ -17,20 +18,19 @@ class _AppState extends State<App> {
   int _pageNumber = 0;
   int _selectedIndex = 0;
   SocketIO socket;
+  var _selectedPlayer;
+  int idUser = 1;
 
   @override
   void initState() {
-    socket = SocketIOManager().createSocketIO('http://192.168.1.20:3000', '/');
-    socket.init();
-
-    socket.subscribe('changePage', (page) {
+    SocketAction.inizialize(idUser);
+    SocketAction.subscribe('changePage', (player) {
       setState(() {
-        int n = json.decode(page);
-        this._pageNumber = n;
+        this._selectedPlayer = json.decode(player);
+        this._pageNumber = 1;
       });
     });
 
-    socket.connect();
     super.initState();
   }
 
@@ -43,8 +43,8 @@ class _AppState extends State<App> {
           title: Text('Players'),
         ),
         body: _pageNumber == 0
-            ? PlayerLists(this.getSelectedIndex, this.socket)
-            : Text('ELSE'),
+            ? PlayerLists(this.getSelectedIndex)
+            : PlayerAuction(this._selectedPlayer),
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           currentIndex: _selectedIndex,

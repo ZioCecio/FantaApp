@@ -18,9 +18,14 @@ app.use((req, res, next) => {
 app.use("/players", playersRouter);
 
 io.on("connection", socket => {
+  console.log(socket.client.id);
+
   socket.on("changePage", data => {
-    console.log(data);
-    io.sockets.emit("changePage", 1);
+    io.sockets.emit("changePage", data);
+  });
+
+  socket.on("doOffer", data => {
+    io.sockets.emit("onOffer", { user: data.user, offer: data.offer });
   });
 });
 

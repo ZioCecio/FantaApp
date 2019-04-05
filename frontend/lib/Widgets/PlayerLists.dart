@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_socket_io/flutter_socket_io.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:fanta/SocketAction.dart';
+
 class PlayerLists extends StatefulWidget {
   var _selectedIndex;
-  SocketIO socket;
 
-  PlayerLists(this._selectedIndex, this.socket);
+  PlayerLists(this._selectedIndex);
 
   @override
-  _PlayerListsState createState() => _PlayerListsState(_selectedIndex, socket);
+  _PlayerListsState createState() => _PlayerListsState(_selectedIndex);
 }
 
 class _PlayerListsState extends State<PlayerLists> {
   Map<String, List> players = Map();
   var _selectedIndex;
-  SocketIO socket;
 
-  _PlayerListsState(this._selectedIndex, this.socket);
+  _PlayerListsState(this._selectedIndex);
 
   Future<String> _fetchData() async {
     var portieri = await http.get(
@@ -69,7 +68,9 @@ class _PlayerListsState extends State<PlayerLists> {
         itemBuilder: (BuildContext context, int index) {
           return GestureDetector(
             onTap: () {
-              socket.sendMessage('changePage', '{"page": ${1}}');
+              SocketAction.changePage(players[key][index]);
+              SocketAction.doOffer('${players[key][index]['quotation']}',
+                  players[key][index]['id_player']);
             },
             child: Container(
               child: Center(
